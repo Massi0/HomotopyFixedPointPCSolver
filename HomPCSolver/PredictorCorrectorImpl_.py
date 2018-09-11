@@ -38,7 +38,7 @@ class PredictorCorrectorSolver(object):
         self.maxSteps = maxSteps
         self.epsPred = epsPred
         self.epsCorr = epsCorr
-        self.hStep = self.epsPred *1e-2
+        self.hStep = self.epsPred *1e1
         self.AbsTol = self.epsPred*1e-1
 
     @abc.abstractmethod
@@ -54,52 +54,52 @@ class PredictorCorrectorSolver(object):
         
     def _predictorSteps(self,y0):
         
-        err = 1
-
-        while err>self.epsPred:
-            dF = self._DF(y0)
-            
+        err = 0
+        d = y0
+        while err<self.epsPred:
+            F = self._F(y0)
+            dF = self._DF(y0)            
             d = linalg.null_space(dF) #kernel of the Jacobian
             #d = d/linalg.norm(d,2) #Normalization of the kernel
-            
             #if d[2,0]<0:
             #    d = -d
             ynext = y0 + self.hStep * d
-            F = self._F(ynext)
             err = linalg.norm(F,2)
             y0 = ynext
         
         return (y0,np.transpose(d)) # return the prediction step and a vector orthogonal to the kernel 
 
     def _correctorSteps(self,y0,b):
-        err = 1
+        err = 10
        
         while err>self.epsCorr:
-            dF = self._DF(y0)
             F = self._F(y0)
+            dF = self._DF(y0)
             A = np.append(dF,b,axis=0)
-            B = A.dot(y0) - np.append(F,[[0]],axis=0)     
+            B = A.dot(y0) - np.append(F,[[0]],axis=0)            
             ynew = linalg.solve(A,B)
-
             err = linalg.norm(F,2)
             y0 = ynew
 
         return (y0,err)
-            
+
+    def _refineNearEnd(self,t):
+        if t>.94:
+            self.hStep = self.hStep /10.
+            self._isRefined = True
+        return
+    
     def _solverPC(self,y0):
         i_iter = 0
-        
+        self._isRefined = False
         while (not self._stopCriteria(y0)) and (i_iter<self.maxSteps):
             (ypred,b) = self._predictorSteps(y0)
             (ypred,errH) = self._correctorSteps(ypred,b)
             i_iter += 1
-            if (linalg.norm(ypred-y0)<self.AbsTol) and (1-ypred[2,0]<.8):
-                self.hStep = self.hStep*2
-            else:
-                self.hStep = self.epsPred
 
             y0 = ypred
-            print i_iter,errH,self.hStep,y0[2,0]
+            self._refineNearEnd(y0[-1])
+            print i_iter,errH,self.hStep,y0[-1]
 
         return (y0,i_iter)
 

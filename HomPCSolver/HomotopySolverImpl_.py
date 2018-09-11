@@ -36,6 +36,8 @@ class HomotopyPCSolver(PredictorCorrectorSolver):
         self.xinit = xinit
         self.Id = np.identity(ndim)
         self.ndimA = ndim+1
+        self.yeq = np.zeros([ndim+1,1]) #vec of dim n+1
+        self.tfinal = -1
     @abc.abstractmethod
     def F(self,x):
         "Define the Function here. returns an array"
@@ -55,24 +57,44 @@ class HomotopyPCSolver(PredictorCorrectorSolver):
         return np.append(self.Id-t*self.DF(x),self.xinit-self.F(x),axis=1)
 
     def _F(self,y):
+        """Definition of the Homotopy function"""
         return self._linearHomotopy(y[0:self.ndimA-1],y[self.ndimA-1])
-
+    
     def _DF(self,y):
+        """Definition of the Jacobian of the Homotopy"""
         return self._JacLinearHomotopy(y[0:self.ndimA-1],y[self.ndimA-1])
 
     
     def _stopCriteria(self,y0):
+        """Implementaion of the Stopping criteria"""
         return y0[self.ndimA-1]>1
-    
+
+    def isValidEquilibrium(self,ErrTol):
+        y = self.yeq
+        y[self.ndimA-1] = 1.
+        return linalg.norm(self._F(y),2)<ErrTol
+
     def runSolver(self):
         (y,i_iter) = self._solverPC(np.append(self.xinit,[[0]],axis=0))
         errCode = 0
         if (i_iter>self.maxSteps):
-            errCode |= 1 
-        if (linalg.norm(y,2)>self.epsCorr):
-            errCode |= 2
+            errCode |= 0b001
+        if ~self.isValidEquilibrium(1e-2):
+            errCode |= 0b010
+        self.yeq = y
+        self.tfinal = y[-1]
 
         return (y,errCode)
+
+    def errorInterpreter(self,errCode):
+        header = "HomotopySolver::"
+        if errCode & 0b001:
+            print header,"Max number of iteration reached"
+        if errCode>>1 &0b001:
+            y = self.yeq
+            y[self.ndimA-1] = 1
+            print header,"Not valid equilibrium::H(x,1)=",linalg.norm(self._F(y),2)
+            
         
 
     

@@ -39,19 +39,24 @@ class PolyTest(HomotopyPCSolver):
         super(PolyTest, self).__init__(xinit,ndim,epsPred,epsCorr, maxSteps)
     def F(self,x):
         #x = x.tolist()
-        return np.array([[(x[0,0]**2+x[1,0]**2)/2-1],
+        return np.array([[(x[0,0]**2/3.+2.*x[1,0])],
                          [x[1,0]**3/3+x[0,0]**2/2-2]])
 
     def DF(self,x):
-        return np.array([[x[0,0]+x[1,0]],
-                         [x[1,0]**2+x[0,0] ]])
-
+        return np.array([[2.*x[0,0]/3., 2.],
+                         [x[0,0], x[1,0]**2 ]])
 
 
 if __name__ == '__main__':
     #def run():
-    x0 = np.array([[1],
-                   [.5]])                        
-    PT = PolyTest(x0,2,1e-3,1e-4,1e9)
+    x0 = np.array([[0],
+                   [0]])
+    epsPred = 1e-3
+    epsCorr = 1e-9
+    ndim = 2
+    maxSteps = 1e4
+    PT = PolyTest(x0,ndim,epsPred,epsCorr,maxSteps)
     (y,errCode) = PT.runSolver()
-    print errCode,y
+    print errCode
+    print y
+    PT.errorInterpreter(errCode)
