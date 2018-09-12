@@ -90,7 +90,7 @@ class HomotopyPCSolver(PredictorCorrectorSolver):
         header = "HomotopySolver::"
         if errCode & 0b001:
             print header,"Max number of iteration reached"
-        if errCode>>1 &0b001:
+        if errCode>>1 &0b010:
             y = self.yeq
             y[self.ndimA-1] = 1
             print header,"Not valid equilibrium::H(x,1)=",linalg.norm(self._F(y),2)

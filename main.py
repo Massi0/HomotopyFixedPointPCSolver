@@ -30,8 +30,10 @@ __email__ = "amrouch2@illinois.edu"
 #Headers
 
 from HomPCSolver import HomotopyPCSolver 
-from HomPCSolver import np
+from HomPCSolver import np,linalg
+from demo import pkl,path,LSTMNN
 import pdb
+
 
 
 class PolyTest(HomotopyPCSolver):
@@ -48,15 +50,34 @@ class PolyTest(HomotopyPCSolver):
 
 
 if __name__ == '__main__':
-    #def run():
-    x0 = np.array([[0],
-                   [0]])
-    epsPred = 1e-3
-    epsCorr = 1e-9
-    ndim = 2
-    maxSteps = 1e4
-    PT = PolyTest(x0,ndim,epsPred,epsCorr,maxSteps)
-    (y,errCode) = PT.runSolver()
-    print errCode
-    print y
-    PT.errorInterpreter(errCode)
+
+    test = 2
+    if test == 1:
+        x0 = np.array([[0],
+                       [0]])
+        epsPred = 1e-3
+        epsCorr = 1e-9
+        ndim = 2
+        maxSteps = 1e4
+        PT = PolyTest(x0,ndim,epsPred,epsCorr,maxSteps)
+        (y,errCode) = PT.runSolver()
+        print errCode
+        print y
+        PT.errorInterpreter(errCode)
+        if ~(errCode>>1 &0b010):
+            y[-1] = 1
+            print "Valid equilibrium::H(x,1)=",linalg.norm(PT._F(y),2)
+
+
+    if test == 2:
+        data_input_file = 'demo/data/save_10v2.pkl'
+        input_size = 200
+
+        lstm = LSTMNN(200)
+        ndim = lstm.loadFromPickle(data_input_file)
+        x0 = np.random.uniform(-1,1,[ndim,1])
+        lstm.setInitStat(x0)
+        (x1,jac) = lstm._map_jac_update()
+        print x0[0:10,:]
+        
+       

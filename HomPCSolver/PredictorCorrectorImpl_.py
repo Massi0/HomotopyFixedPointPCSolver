@@ -63,6 +63,7 @@ class PredictorCorrectorSolver(object):
             #d = d/linalg.norm(d,2) #Normalization of the kernel
             #if d[2,0]<0:
             #    d = -d
+
             ynext = y0 + self.hStep * d
             err = linalg.norm(F,2)
             y0 = ynext
@@ -84,8 +85,9 @@ class PredictorCorrectorSolver(object):
         return (y0,err)
 
     def _refineNearEnd(self,t):
-        if t>.94:
-            self.hStep = self.hStep /10.
+        if t>.8:
+            self.hStep = self.hStep
+            self.epsPred = self.epsPred /100.
             self._isRefined = True
         return
     
