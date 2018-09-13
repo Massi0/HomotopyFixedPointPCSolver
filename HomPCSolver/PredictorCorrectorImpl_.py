@@ -38,7 +38,7 @@ class PredictorCorrectorSolver(object):
         self.maxSteps = maxSteps
         self.epsPred = epsPred
         self.epsCorr = epsCorr
-        self.hStep = self.epsPred *1e1
+        #self.hStep = self.epsPred *1e1
         self.AbsTol = self.epsPred*1e-1
 
     @abc.abstractmethod
@@ -51,29 +51,43 @@ class PredictorCorrectorSolver(object):
     @abc.abstractmethod
     def _stopCriteria(self,x):
         "Definition of the stoping criteria. returns a bool"
+    def _refineThePrediction(self,err,errR):
+        
+        if err/errR>1.e2:    
+            return 1e-1
+
+        return 0
         
     def _predictorSteps(self,y0):
         
-        err = 0
+        err = 10
         d = y0
-        while err<self.epsPred:
-            F = self._F(y0)
-            dF = self._DF(y0)            
-            d = linalg.null_space(dF) #kernel of the Jacobian
-            #d = d/linalg.norm(d,2) #Normalization of the kernel
-            #if d[2,0]<0:
-            #    d = -d
+        count = 0
+        y00 = y0
+        h = self.hStep *10
+        while self._refineThePrediction(err,self.epsPred)>0:
+            h = h*1e-1
+            y0 = y00
+            err = 0
+            while err<self.epsPred:
+                F = self._F(y0)
+                dF = self._DF(y0)            
+                d = linalg.null_space(dF) #kernel of the Jacobian
+                #d = d/linalg.norm(d,2) #Normalization of the kernel
+                #if d[2,0]<0:
+                #    d = -d
 
-            ynext = y0 + self.hStep * d
-            err = linalg.norm(F,2)
-            y0 = ynext
-        
+                ynext = y0 + h * d
+                err = linalg.norm(F,2)
+                y0 = ynext
+            
+        print "Prediction err:", err, "Steps:", h
         return (y0,np.transpose(d)) # return the prediction step and a vector orthogonal to the kernel 
 
     def _correctorSteps(self,y0,b):
         err = 10
-       
-        while err>self.epsCorr:
+        count = 0
+        while err>self.epsCorr and count<1e2:
             F = self._F(y0)
             dF = self._DF(y0)
             A = np.append(dF,b,axis=0)
@@ -81,7 +95,8 @@ class PredictorCorrectorSolver(object):
             ynew = linalg.solve(A,B)
             err = linalg.norm(F,2)
             y0 = ynew
-
+            count = count + 1
+        print "Correction err:", err
         return (y0,err)
 
     def _refineNearEnd(self,t):

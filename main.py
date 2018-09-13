@@ -73,11 +73,13 @@ if __name__ == '__main__':
         data_input_file = 'demo/data/save_10v2.pkl'
         input_size = 200
 
-        lstm = LSTMNN(200)
-        ndim = lstm.loadFromPickle(data_input_file)
+        lstm = LSTMNN(data_input_file)
+        ndim = 2*lstm.dimOfOutput()
         x0 = np.random.uniform(-1,1,[ndim,1])
+        x0 = np.zeros([ndim,1])
         lstm.setInitStat(x0)
-        (x1,jac) = lstm._map_jac_update()
-        print x0[0:10,:]
+        (t,x,eCode) = lstm.findEquilibria()
+        lstm.errorInterpreter(errCode)
+        
         
        
