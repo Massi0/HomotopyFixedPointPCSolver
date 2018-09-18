@@ -28,7 +28,7 @@ __email__ = "amrouch2@illinois.edu"
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 #Headers
-from  HomPCSolver import linalg, np, abc, PredictorCorrectorSolver
+from  HomPCSolver import linalg, np, abc, PredictorCorrectorSolver,fsolve
 
 class HomotopyPCSolver(PredictorCorrectorSolver):
     def __init__(self,xinit,ndim,epsPred=1e-3,epsCorr=1e-3, maxSteps=1000):
@@ -83,7 +83,7 @@ class HomotopyPCSolver(PredictorCorrectorSolver):
             errCode |= 0b010
         self.yeq = y
         self.tfinal = y[-1]
-
+        
         return (y,errCode)
 
     def errorInterpreter(self,errCode):
@@ -94,8 +94,19 @@ class HomotopyPCSolver(PredictorCorrectorSolver):
             y = self.yeq
             y[self.ndimA-1] = 1
             print header,"Not valid equilibrium::H(x,1)=",linalg.norm(self._F(y),2)
-            
-        
 
+
+    def refineTheEquilibria(self,y0):
+        def fun(x):
+            y = np.append(np.array([x]).T,[1])
+            return self._F(np.array([y]).T)[:,0]
+        def dfun(x):
+            y = np.append(np.array([x]).T,[1])
+            return self._DF(np.array([y]).T)[:,:-1]
+
+        y = fsolve(fun,y0[:-1,0],(),dfun)
+
+        return y
+        
     
         

@@ -79,7 +79,11 @@ if __name__ == '__main__':
         x0 = np.zeros([ndim,1])
         lstm.setInitStat(x0)
         (t,x,eCode) = lstm.findEquilibria()
-        lstm.errorInterpreter(errCode)
+        xeq = lstm.refineTheEquilibria(x)
+        xeq = np.array([xeq]).T
+        lstm.errorInterpreter(eCode)
+        print linalg.norm(xeq-lstm.F(xeq),2)
+        
         
         
        

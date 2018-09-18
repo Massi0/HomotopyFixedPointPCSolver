@@ -14,9 +14,9 @@ class LSTMNN(HomotopyPCSolver):
         self.ndim = ndim = 2*ncells
         self.ncells = ncells
         self.xinit = x0 = np.zeros([ndim,1])
-        self.epsPred = epsPred = 1e-7
+        self.epsPred = epsPred = 1e-10
         self.epsCorr = epsCorr = 1e-9
-        self.hStep = 1e-2
+
         self.maxSteps = maxSteps = 1e5
         
         self._jac = np.zeros([ndim,ndim])
