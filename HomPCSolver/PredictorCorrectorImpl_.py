@@ -28,7 +28,7 @@ __email__ = "amrouch2@illinois.edu"
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 #Headers 
-from  HomPCSolver import linalg,np,abc,fsolve
+from  HomPCSolver import linalg,np,fsolve
 
 
 class PredictorCorrectorSolver(object):
@@ -38,59 +38,53 @@ class PredictorCorrectorSolver(object):
         self.maxSteps = maxSteps
         self.epsPred = epsPred
         self.epsCorr = epsCorr
-        self.hStep = 1e-3
-        self.AbsTol = self.epsPred*1e-1
+        self.hStep = np.sqrt(self.epsPred)
+        
+    @property
+    def _PC_F(self,x):
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def _F(self,x):
-        "Define the Function here. returns an array"
-
-    @abc.abstractmethod
-    def _DF(self,x):
+    @property
+    def _PC_DF(self,x):
         "Definition of the Jacobian of the function here. return an array"
-    @abc.abstractmethod
+        raise NotImplemented
+    @property
     def _stopCriteria(self,x):
         "Definition of the stoping criteria. returns a bool"
-    def _refineThePrediction(self,err,errR):
-        
-        if err/errR>1.e2:    
-            return 1e-1
-
-        return 0
-        
+        raise NotImplemented
+            
     def _predictorSteps(self,y0):
         
         err = 0.0
         d = y0
         count = 0
         y00 = y0
-        h = self.hStep *10
-       
+        h = self.hStep
         while err<self.epsPred:
-            F = self._F(y0)
-            dF = self._DF(y0)            
+            F = self._PC_F(y0)
+            dF = self._PC_DF(y0)            
             d = linalg.null_space(dF) #kernel of the Jacobian
             #d = d/linalg.norm(d,2) #Normalization of the kernel
-            #if d[2,0]<0:
-            #    d = -d
-            
+            if d[-1,0]<0:
+                d = -d
             ynext = y0 + h * d
             err = linalg.norm(F,2)
             y0 = ynext
+
+        print h,self.epsPred,err
             
-        print "Prediction err:", err, "Steps:", h
         return (y0,np.transpose(d)) # return the prediction step and a vector orthogonal to the kernel 
 
     def _correctorSteps_v2(self,y0,b):
         def fun(x):
             y = np.array([x]).T
-            F = self._F(y)
+            F = self._PC_F(y)
             return np.append(F,b.dot(y-y0),axis=0)[:,0]
+        
         def dfun(x):
             y = np.array([x]).T
-            dF = self._DF(y)
+            dF = self._PC_DF(y)
             return np.append(dF,b,axis=0)
-
 
         (y) = fsolve(fun,y0[:,0],(),dfun)
         return (np.array([y]).T,0)
@@ -100,8 +94,8 @@ class PredictorCorrectorSolver(object):
         err = 10
         count = 0
         while err>self.epsCorr and count<1e2:
-            F = self._F(y0)
-            dF = self._DF(y0)
+            F = self._PC_F(y0)
+            dF = self._PC_DF(y0)
             A = np.append(dF,b,axis=0)
             B = A.dot(y0) - np.append(F,[[0]],axis=0)            
             ynew = linalg.solve(A,B)
@@ -112,9 +106,9 @@ class PredictorCorrectorSolver(object):
         return (y0,err)
 
     def _refineNearEnd(self,t):
-        if (t>.8) and (not self._isRefined):
-            self.hStep = self.hStep
-            self.epsPred = self.epsPred /100.
+        if (t>.95) and (not self._isRefined):
+            self.epsPred = self.epsPred*1e-2
+            self.hStep = np.sqrt(self.epsPred)/2
             self._isRefined = True
         return
     
@@ -128,13 +122,13 @@ class PredictorCorrectorSolver(object):
             i_iter += 1
 
             y0 = ypred
-            self._refineNearEnd(y0[-1])
-            print i_iter,info,self.hStep,y0[-1]
+            #self._refineNearEnd(y0[-1])
+            print i_iter,self.hStep,y0[-1]
 
         return (y0,i_iter)
 
            
     def _printTest(self,x):
-        return self._F(x)
+        return self._PC_F(x)
         
         

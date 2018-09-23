@@ -28,7 +28,7 @@ __email__ = "amrouch2@illinois.edu"
 #~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 #Headers
-from  HomPCSolver import linalg, np, abc, PredictorCorrectorSolver,fsolve
+from  HomPCSolver import linalg, np, PredictorCorrectorSolver,fsolve
 
 class HomotopyPCSolver(PredictorCorrectorSolver):
     def __init__(self,xinit,ndim,epsPred=1e-3,epsCorr=1e-3, maxSteps=1000):
@@ -38,13 +38,15 @@ class HomotopyPCSolver(PredictorCorrectorSolver):
         self.ndimA = ndim+1
         self.yeq = np.zeros([ndim+1,1]) #vec of dim n+1
         self.tfinal = -1
-    @abc.abstractmethod
+    @property
     def F(self,x):
         "Define the Function here. returns an array"
+        raise NotImplementedError("Function not defined")
 
-    @abc.abstractmethod
+    @property
     def DF(self,x):
         "Definition of the Jacobian of the function here. return an array"
+        raise NotImplementedError("Jacobian not defined")
 
     def _linearHomotopy(self,x,t):
         #H(x,t) = (1-t)(x-x0)+t(x-F(x))
@@ -56,11 +58,11 @@ class HomotopyPCSolver(PredictorCorrectorSolver):
 
         return np.append(self.Id-t*self.DF(x),self.xinit-self.F(x),axis=1)
 
-    def _F(self,y):
+    def _PC_F(self,y):
         """Definition of the Homotopy function"""
         return self._linearHomotopy(y[0:self.ndimA-1],y[self.ndimA-1])
     
-    def _DF(self,y):
+    def _PC_DF(self,y):
         """Definition of the Jacobian of the Homotopy"""
         return self._JacLinearHomotopy(y[0:self.ndimA-1],y[self.ndimA-1])
 
@@ -72,7 +74,7 @@ class HomotopyPCSolver(PredictorCorrectorSolver):
     def isValidEquilibrium(self,ErrTol):
         y = self.yeq
         y[self.ndimA-1] = 1.
-        return linalg.norm(self._F(y),2)<ErrTol
+        return linalg.norm(self._PC_F(y),2)<ErrTol
 
     def runSolver(self):
         (y,i_iter) = self._solverPC(np.append(self.xinit,[[0]],axis=0))
@@ -93,16 +95,16 @@ class HomotopyPCSolver(PredictorCorrectorSolver):
         if errCode>>1 &0b010:
             y = self.yeq
             y[self.ndimA-1] = 1
-            print header,"Not valid equilibrium::H(x,1)=",linalg.norm(self._F(y),2)
+            print header,"Not valid equilibrium::H(x,1)=",linalg.norm(self._PC_F(y),2)
 
 
     def refineTheEquilibria(self,y0):
         def fun(x):
             y = np.append(np.array([x]).T,[1])
-            return self._F(np.array([y]).T)[:,0]
+            return self._PC_F(np.array([y]).T)[:,0]
         def dfun(x):
             y = np.append(np.array([x]).T,[1])
-            return self._DF(np.array([y]).T)[:,:-1]
+            return self._PC_DF(np.array([y]).T)[:,:-1]
 
         y = fsolve(fun,y0[:-1,0],(),dfun)
 

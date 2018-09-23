@@ -1,9 +1,0 @@
-
-
-
-pickle.dump(w, open("a_py2.pkl","wb"), protocol=2)
-
-arg = sys.argv
-
-fn = arg[1]
-output = arg[2]
