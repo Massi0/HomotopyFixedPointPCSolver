@@ -27,4 +27,4 @@ A homotopy method solver that finds fixed points of C2 functions. The solver is 
 * demo/LSTMS.py: an implementation of a simple n dimensional LSTM map.
 
 ### Reference:
-Garcia, C. B., & Zangwill, W. I. Pathways to solutions, fixed points, and equilibria. 1981.
+* *Garcia, C. B., & Zangwill, W. I. Pathways to solutions, fixed points, and equilibria. 1981.*
