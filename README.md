@@ -12,9 +12,9 @@ A homotopy method solver that finds fixed points of C2 functions. The solver is 
 
 * "main.py" contains 3 test examples. 
 
-* test 1: finding a root a multi-polynomial equation
-* test 2: finding the equilibrium of an LSTM neural network map
-* test 3: finding the equilibria of LSTM NN during the training
+* test 1: finds a root of multi-polynomial equation
+* test 2: finds the equilibrium of an LSTM neural network map
+* test 3: finds the equilibria of LSTM NN during the training
 ### To Run:
 
 * Step 1: choose test ={1,2,3}.
