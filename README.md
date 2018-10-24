@@ -10,7 +10,7 @@ A homotopy method solver that finds fixed points of C2 functions. The solver is 
 
 ## Getting Started
 
-* "main.py" contains 3 test examples. 
+* "caseTest.py" contains 3 test examples. 
 
 * test 1: finds a root of multi-polynomial equation
 * test 2: finds the equilibrium of an LSTM neural network map
