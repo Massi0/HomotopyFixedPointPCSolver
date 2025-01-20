@@ -74,7 +74,7 @@ def pruneW(w,th):
         w[i][ind] = 0
        
         
-    print s,' elements discarded | nb elements: ',nT, '| Pourcentage =  ',s/(.01*nT),' | min =', minval, ' | max = ',maxval 
+    print(s,' elements discarded | nb elements: ',nT, '| Pourcentage =  ',s/(.01*nT),' | min =', minval, ' | max = ',maxval) 
     
     return (w,s/(.01*nT))
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     x0 = np.zeros([ndim,1])
     lstm.setInitStat(x0)
     
-    print("dim = ",str(ndim))
+    print(("dim = ",str(ndim)))
     (t,x,eCode) = lstm.findEquilibria(epsPred,epsCorr,maxSteps)
 
     xeq = lstm.refineTheEquilibria(x)
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
     lstm.errorInterpreter(eCode)
 
-    print("||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2))
+    print(("||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2)))
 
             
     tmp_out = {'xeq':xeq,'prTh':thrPrune}

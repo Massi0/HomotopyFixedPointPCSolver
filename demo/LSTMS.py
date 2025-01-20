@@ -86,7 +86,7 @@ class LSTMNN(HomotopyPCSolver):
         self.w['bf'] = np.array([b_f]).T
         self.w['bg'] = np.array([b_C]).T       
 
-        print "Parameters loaded from "+filename+" | dim(h) = "+ str(ncells) + " | dim(x) = " + str(input_size)
+        print("Parameters loaded from "+filename+" | dim(h) = "+ str(ncells) + " | dim(x) = " + str(input_size))
         
         return ncells
 
