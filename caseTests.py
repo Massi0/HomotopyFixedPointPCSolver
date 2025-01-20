@@ -72,7 +72,7 @@ def pruneW(w,th):
         w[i][ind] = 0
        
         
-    print s,' elements discarded | nb elements: ',nT, '| Pourcentage =  ',s/(.01*nT),' | min =', minval, ' | max = ',maxval 
+    print(s,' elements discarded | nb elements: ',nT, '| Pourcentage =  ',s/(.01*nT),' | min =', minval, ' | max = ',maxval) 
     
     return (w,s/(.01*nT))
 
@@ -105,12 +105,12 @@ if __name__ == '__main__':
         maxSteps = 1e4
         PT = PolyTest(x0,ndim,epsPred,epsCorr,hStep,maxSteps)
         (y,errCode) = PT.runSolver()
-        print errCode
-        print y
+        print(errCode)
+        print(y)
         PT.errorInterpreter(errCode)
         if ~(errCode>>1 &0b010):
             y[-1] = 1
-            print "Valid equilibrium::H(x,1)=",linalg.norm(PT._PC_F(y),2)
+            print("Valid equilibrium::H(x,1)=",linalg.norm(PT._PC_F(y),2))
 
     
     if test == 2:
@@ -130,7 +130,7 @@ if __name__ == '__main__':
         xeq = lstm.refineTheEquilibria(x)
         xeq = np.array([xeq]).T
         lstm.errorInterpreter(eCode)
-        print "||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2)
+        print("||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2))
         
     if test == 3:
         data_input_file = 'demo/data/PTB_overtime/weights_PTB_overtimev2.pkl'
@@ -152,12 +152,12 @@ if __name__ == '__main__':
             #x0 = np.random.uniform(-1,1,[ndim,1])
             x0 = np.zeros([ndim,1])
             lstm.setInitStat(x0)
-            print i_step, ": dim = ",str(ndim)
+            print(i_step, ": dim = ",str(ndim))
             (t,x,eCode) = lstm.findEquilibria(epsPred,epsCorr,maxSteps)
             xeq = lstm.refineTheEquilibria(x)
             xeq = np.array([xeq]).T
             lstm.errorInterpreter(eCode)
-            print i_step, ": ||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2)
+            print(i_step, ": ||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2))
             i_step +=1
             eq.append(xeq)
             
@@ -192,12 +192,12 @@ if __name__ == '__main__':
             #x0 = np.random.uniform(-1,1,[ndim,1])
             x0 = np.zeros([ndim,1])
             lstm.setInitStat(x0)
-            print i_step, ": dim = ",str(ndim)
+            print(i_step, ": dim = ",str(ndim))
             (t,x,eCode) = lstm.findEquilibria(epsPred,epsCorr,maxSteps)
             xeq = lstm.refineTheEquilibria(x)
             xeq = np.array([xeq]).T
             lstm.errorInterpreter(eCode)
-            print i_step, ": ||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2)
+            print(i_step, ": ||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2))
             i_step +=1
             eq.append(xeq)
 
@@ -229,7 +229,7 @@ if __name__ == '__main__':
         w = paramOverEpochs[0]
         pList = []
         for i in plist:
-            print i
+            print(i)
             weights = readFromPickle(w)
             weights, pPrune = pruneW(weights,i)
             
@@ -238,12 +238,12 @@ if __name__ == '__main__':
             #x0 = np.random.uniform(-1,1,[ndim,1])
             x0 = np.zeros([ndim,1])
             lstm.setInitStat(x0)
-            print i_step, ": dim = ",str(ndim)
+            print(i_step, ": dim = ",str(ndim))
             (t,x,eCode) = lstm.findEquilibria(epsPred,epsCorr,maxSteps)
             xeq = lstm.refineTheEquilibria(x)
             xeq = np.array([xeq]).T
             lstm.errorInterpreter(eCode)
-            print i_step, ": ||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2)
+            print(i_step, ": ||F(xeq)-xeq|| = ",linalg.norm(xeq-lstm.F(xeq),2))
             i_step +=1
             eq.append(xeq)
             pList.append(pPrune)

@@ -71,7 +71,7 @@ class PredictorCorrectorSolver(object):
             err = linalg.norm(F,2)
             y0 = ynext
 
-        print h,self.epsPred,err
+        print(h,self.epsPred,err)
             
         return (y0,np.transpose(d)) # return the prediction step and a vector orthogonal to the kernel 
 
@@ -102,7 +102,7 @@ class PredictorCorrectorSolver(object):
             err = linalg.norm(F,2)
             y0 = ynew
             count = count + 1
-        print "Correction err:", err
+        print("Correction err:", err)
         return (y0,err)
 
     def _refineNearEnd(self,t):
@@ -123,7 +123,7 @@ class PredictorCorrectorSolver(object):
 
             y0 = ypred
             #self._refineNearEnd(y0[-1])
-            print i_iter,self.hStep,y0[-1]
+            print(i_iter,self.hStep,y0[-1])
 
         return (y0,i_iter)
 
